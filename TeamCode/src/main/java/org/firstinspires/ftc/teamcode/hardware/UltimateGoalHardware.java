@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.action.LocalizerMoveAction;
+import org.firstinspires.ftc.teamcode.playmaker.Localizer;
 import org.firstinspires.ftc.teamcode.playmaker.RobotHardware;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
@@ -25,6 +26,8 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     private static final String LABEL_SECOND_ELEMENT = "Single";
 
     public static final Double ACCELERATION = 3D;
+    public static final Position SHOOTING_POSITION_RED_NEAR_CENTER = Localizer.createPosition(DistanceUnit.INCH, -3, -12);
+    public static final Position SHOOTING_POSITION_RED_ALIGNED_GOAL = Localizer.createPosition(DistanceUnit.INCH, -3, -36);
     public static final double SHOOTER_HEADING_OFFSET = -10;
     public static final double SHOOTER_POWER = 0.5235;
     public static final double SHOOTER_RPM = 2600;

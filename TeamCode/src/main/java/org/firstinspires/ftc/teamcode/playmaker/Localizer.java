@@ -655,6 +655,10 @@ public class Localizer {
         Position unit_b = b.toUnit(DistanceUnit.CM);
         return Math.toDegrees(Math.atan2((unit_b.x-unit_a.x),-(unit_b.y-unit_a.y)));
     }
+
+    public static Position createPosition(DistanceUnit unit, double x, double y) {
+        return new Position(unit, x, y, 0, 0);
+    }
     //endregion
 
 }
