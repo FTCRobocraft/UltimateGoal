@@ -32,9 +32,9 @@ public abstract class RobotHardware extends OpMode {
     public WebcamName webcamName;
     public boolean initVuforia = true;
     public boolean initTfod = true;
-    private double lastLoopTime;
-    private double msSinceLastLoop;
-    private double msElapsedOfLastLoop;
+    private long lastLoopTime;
+    private long nsSinceLastLoop;
+    private long nsElapsedOfLastLoop;
 
     // Executors
     public AutonomousExecutor autonomousExecutor;
@@ -148,6 +148,9 @@ public abstract class RobotHardware extends OpMode {
      * @param hybridOp HybridOp to be executed
      */
     public void initializeForHybridOp(HybridOp hybridOp) {
+        if (this.tfod != null) {
+            this.tfod.deactivate();
+        }
         this.executionMode = ExecutionMode.HYBRID_OP;
         this.hybridOpExecutor = new HybridOpExecutor(hybridOp, this);
     }
@@ -166,13 +169,13 @@ public abstract class RobotHardware extends OpMode {
     @Override
     public void start() {
         super.start();
-        lastLoopTime = System.currentTimeMillis();
+        lastLoopTime = System.nanoTime();
     }
 
     @Override
     public void loop() {
-        long loopStart = System.currentTimeMillis();
-        msSinceLastLoop = loopStart - lastLoopTime;
+        long loopStart = System.nanoTime();
+        nsSinceLastLoop = loopStart - lastLoopTime;
         this.hardware_loop();
 
         // Update robot location
@@ -194,20 +197,27 @@ public abstract class RobotHardware extends OpMode {
                 break;
         }
         this.run_loop();
-        double loopEnd = System.currentTimeMillis();
-        msElapsedOfLastLoop = loopEnd - loopStart;
-        lastLoopTime = loopEnd;
+        omniDrive.updateMotorPowers();
+        telemetry.addData("rt", gamepad1.right_trigger);
+        telemetry.addData("[RobotHardware] FLSC", omniDrive.flSpeedController.getPower());
+        telemetry.addData("[RobotHardware] FRSC", omniDrive.frSpeedController.getPower());
+        telemetry.addData("[RobotHardware] BLSC", omniDrive.blSpeedController.getPower());
+        telemetry.addData("[RobotHardware] BRSC", omniDrive.brSpeedController.getPower());
 
-        telemetry.addData("[RobotHardware] LET", "%.1f ms", msElapsedOfLastLoop);
-        telemetry.addData("[RobotHardware] LLT", "%.1f ms", msSinceLastLoop);
-        telemetry.addData("[RobotHardware] LPS", "%.1f LPS", 1000/msSinceLastLoop);
+
+        long loopEnd = System.nanoTime();
+        nsElapsedOfLastLoop = loopEnd - loopStart;
+        telemetry.addData("[RobotHardware] LET", "%.1f ms", getMsOfLastLoopExecutionTime());
+        telemetry.addData("[RobotHardware] LLT", "%.1f ms", getMsSinceLastLoopStart());
+        telemetry.addData("[RobotHardware] LPS", "%.1f LPS", 1000/ getMsSinceLastLoopStart());
+        lastLoopTime = loopStart;
     }
 
     public double getMsSinceLastLoopStart() {
-        return msSinceLastLoop;
+        return nsSinceLastLoop / 1000000;
     }
 
     public double getMsOfLastLoopExecutionTime() {
-        return msElapsedOfLastLoop;
+        return nsElapsedOfLastLoop / 1000000;
     }
 }

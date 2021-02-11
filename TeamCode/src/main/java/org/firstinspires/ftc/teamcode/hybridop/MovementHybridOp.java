@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.hybridop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.autonomous.sequences.MovementActionSequence;
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.playmaker.ActionSequence;
 import org.firstinspires.ftc.teamcode.playmaker.GamepadActions;
 import org.firstinspires.ftc.teamcode.playmaker.HybridOp;
 
+@Disabled
 @TeleOp(name="Movement HyOp")
 public class MovementHybridOp extends MovementHardware implements HybridOp {
 
@@ -45,5 +47,10 @@ public class MovementHybridOp extends MovementHardware implements HybridOp {
         telemetry.addData("angle", angle);
         telemetry.addData("rotate", rotate);
         omniDrive.move(power, angle, rotate);
+    }
+
+    @Override
+    public void hybrid_loop() {
+
     }
 }

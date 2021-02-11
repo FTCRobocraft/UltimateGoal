@@ -55,8 +55,9 @@ public class Localizer {
     private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
     private static final float halfField = 72 * mmPerInch;
     private static final float quadField  = 36 * mmPerInch;
+    private boolean allowVuforiaMeasurement = false;
 
-    public double distanceToAcceptVuforiaInches = 72;
+    public double distanceToAcceptVuforiaInches = 24;
     public double encodersXScaleFactor = 1;
     public double encodersYScaleFactor = 1;
 
@@ -259,7 +260,7 @@ public class Localizer {
             float x = translation.get(0);
             float y = translation.get(1);
             float z = translation.get(2);
-            Position position = new Position(DistanceUnit.MM, x, y, z, System.currentTimeMillis());
+            Position position = new Position(DistanceUnit.MM, x, y, z, lastVuforiaTransform.acquisitionTime);
             estimatedPosition = new EstimatedPosition(PositionSource.VUFORIA, position);
         } else if (newEncodersInfo){
             estimatedPosition = new EstimatedPosition(PositionSource.ENCODERS, lastEncoderPosition);
@@ -268,6 +269,7 @@ public class Localizer {
         // Estimate Orientation
         if (lastVuforiaTransform != null) {
             Orientation rotation = Orientation.getOrientation(lastVuforiaTransform.transform, EXTRINSIC, XYZ, DEGREES);
+            rotation.acquisitionTime = lastVuforiaTransform.acquisitionTime;
             estimatedOrientation = new EstimatedOrientation(OrientationSource.VUFORIA, rotation);
             if (vuforiaOverwritesOtherOrientations) {
                 setIMUToWorldOffset(hardware.revIMU, rotation.thirdAngle);
@@ -314,6 +316,10 @@ public class Localizer {
             this.transform = transform;
 
         }
+    }
+
+    public void syncEncodersWithVuforia() {
+        this.allowVuforiaMeasurement = true;
     }
 
     /**
@@ -420,17 +426,17 @@ public class Localizer {
         for (VuforiaTrackable trackable : vuforiaTrackables) {
             VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) trackable.getListener();
             if (listener.isVisible()) {
-                hardware.telemetry.addData("Localizer Visible Target:", trackable.getName());
-                OpenGLMatrix imageLocationRelRobot = listener.getVuforiaCameraFromTarget();
+                hardware.telemetry.addData("[Localizer] Visible Target:", trackable.getName());
+                OpenGLMatrix imageLocationRelRobot = listener.getFtcCameraFromTarget();
                 float relX = imageLocationRelRobot.getTranslation().get(0);
                 float relY = imageLocationRelRobot.getTranslation().get(1);
                 float relZ = imageLocationRelRobot.getTranslation().get(2);
                 Position imagePositionRelRobot = new Position(DistanceUnit.MM, relX,relY,relZ, 0);
-                double distance = Localizer.distance(zero, imagePositionRelRobot, DistanceUnit.INCH);
-                if (distance < distanceToAcceptVuforiaInches) {
-                    didFindTarget = true;
+                double distance = Localizer.distanceXZ(zero, imagePositionRelRobot, DistanceUnit.INCH);
+                if (distance < distanceToAcceptVuforiaInches || allowVuforiaMeasurement) {
                     OpenGLMatrix robotTransform = listener.getUpdatedRobotLocation();
                     if (robotTransform != null) {
+                        didFindTarget = true;
                         lastVuforiaTransform = new VuforiaTransform(robotTransform);
                         if (vuforiaOverwritesOtherLocations) {
                             VectorF translation = lastVuforiaTransform.transform.getTranslation();
@@ -440,6 +446,7 @@ public class Localizer {
                             Position position = new Position(DistanceUnit.MM, x, y, z, System.currentTimeMillis());
                             lastEncoderPosition = position;
                         }
+                        allowVuforiaMeasurement = false;
                     }
                 }
             }
@@ -571,6 +578,21 @@ public class Localizer {
         return new_transforms;
     }
 
+    public static Position addPositions(Position a, Position b, DistanceUnit unit) {
+        Position unit_a = a.toUnit(unit);
+        Position unit_b = b.toUnit(unit);
+        return new Position(unit, unit_a.x + unit_b.x, unit_a.y + unit_b.y, unit_a.z + unit_b.z, a.acquisitionTime);
+    }
+
+    public static Position velocityToDelta(Velocity velocity, double seconds, DistanceUnit unit) {
+        Velocity unit_velocity = velocity.toUnit(unit);
+        return new Position(unit, unit_velocity.xVeloc * seconds, unit_velocity.yVeloc * seconds, unit_velocity.zVeloc * seconds, 0);
+    }
+
+    public static double angVelocityToDelta(AngularVelocity angVelocity, double seconds) {
+        return angVelocity.zRotationRate * seconds;
+    }
+
     /**
      * Compute the XY distance between two Positions
      * @param a Position 1
@@ -581,6 +603,18 @@ public class Localizer {
         Position unit_a = a.toUnit(unit);
         Position unit_b = b.toUnit(unit);
         return Math.hypot(unit_b.x - unit_a.x, unit_b.y - unit_a.y);
+    }
+
+    /**
+     * Compute the XY distance between two Positions
+     * @param a Position 1
+     * @param b Position 2
+     * @return XY Distance
+     */
+    public static double distanceXZ(Position a, Position b, DistanceUnit unit) {
+        Position unit_a = a.toUnit(unit);
+        Position unit_b = b.toUnit(unit);
+        return Math.hypot(unit_b.x - unit_a.x, unit_b.z - unit_a.z);
     }
 
     /**

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.hardware.MovementHardware;
 
+@Disabled
 @TeleOp(name="Localizer Telemetry")
 public class LocalizerTelemetry extends MovementHardware {
 

@@ -57,6 +57,7 @@ public class HybridOpExecutor {
     public void loop() {
         hardware.telemetry.addData("[HybridOpExecutor] In Autonomous", inAutonomousMode);
 
+        hybridOp.hybrid_loop();
         if (inAutonomousMode && overrideManualControl) {
             inAutonomousMode = !this.actionExecutor.loop();
             hybridOp.autonomous_loop();

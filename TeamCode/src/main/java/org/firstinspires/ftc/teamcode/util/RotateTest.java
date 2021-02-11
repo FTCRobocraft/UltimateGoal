@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.hardware.UltimateGoalHardware;
 import org.firstinspires.ftc.teamcode.playmaker.GamepadActions;
 import org.firstinspires.ftc.teamcode.playmaker.HybridOp;
 
+@Disabled
 @TeleOp(name="Rotate test")
 public class RotateTest extends UltimateGoalHardware implements HybridOp {
 
@@ -24,6 +26,11 @@ public class RotateTest extends UltimateGoalHardware implements HybridOp {
 
     @Override
     public void autonomous_loop() {
+
+    }
+
+    @Override
+    public void hybrid_loop() {
 
     }
 

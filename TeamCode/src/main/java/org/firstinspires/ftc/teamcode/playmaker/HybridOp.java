@@ -11,4 +11,9 @@ public interface HybridOp {
      */
     void teleop_loop();
 
+    /**
+     * Called every loop regardless if auto/teleop
+     */
+    void hybrid_loop();
+
 }

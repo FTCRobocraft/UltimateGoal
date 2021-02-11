@@ -24,6 +24,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
 
+    public static final Double ACCELERATION = 3D;
     public static final double SHOOTER_HEADING_OFFSET = -10;
     public static final double SHOOTER_POWER = 0.5235;
     public static final double SHOOTER_RPM = 2600;
@@ -33,7 +34,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     public static final LocalizerMoveAction.LocalizerMoveActionParameters defaultLocalizerMoveParameters = new LocalizerMoveAction.LocalizerMoveActionParameters(
             LocalizerMoveAction.FollowPathMethod.FAST,
             1f,
-            0.35,
+            0.3,
             0.3);
 
     boolean spinShooter = false;
@@ -101,6 +102,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
 
         this.initializeOmniDrive(frontLeft, frontRight, backLeft, backRight);
         this.omniDrive.setCountsPerInch(COUNTS_PER_ENCODER_REV/(Math.PI*WHEEL_DIAMETER_IN));
+        this.omniDrive.setAcceleration(ACCELERATION);
     }
 
     @Override
@@ -109,8 +111,8 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         //this.localizer.setRobotStart(revIMU, 90);
         this.localizer.encodersXScaleFactor = 40.0/48.0; // ANTI JANK
         this.localizer.loadUltimateGoalTrackables(this,
-                new Position(DistanceUnit.INCH, -9.25, 0, 0, 0),
-                new Orientation(EXTRINSIC, YZX, DEGREES, -90, 0, 0, 0));
+                new Position(DistanceUnit.INCH, -0, 0, 9.25, 0),
+                new Orientation(EXTRINSIC, YZX, DEGREES, 0, 0, 0, 0));
 
     }
 

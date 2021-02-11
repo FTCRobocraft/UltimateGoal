@@ -11,10 +11,11 @@ public class OmniDrive {
     public DcMotor frontRight;
     public DcMotor backLeft;
     public DcMotor backRight;
-    SpeedController flSpeedController;
-    SpeedController frSpeedController;
-    SpeedController blSpeedController;
-    SpeedController brSpeedController;
+    static final Double DEFAULT_ACCELERATION = null;
+    public SpeedController flSpeedController = new SpeedController(DEFAULT_ACCELERATION);
+    public SpeedController frSpeedController = new SpeedController(DEFAULT_ACCELERATION);
+    public SpeedController blSpeedController = new SpeedController(DEFAULT_ACCELERATION);
+    public SpeedController brSpeedController = new SpeedController(DEFAULT_ACCELERATION);
 
 
     private Double countsPerInch;
@@ -35,31 +36,42 @@ public class OmniDrive {
 
     public static class SpeedController {
 
-        double acceleration;
+        Double acceleration;
         double targetPower = 0;
         double currentPower = 0;
         double lastPowerCalculateTime = 0;
 
-        public SpeedController(double acceleration) {
+        public SpeedController(Double acceleration) {
             setAcceleration(acceleration);
         }
 
-        void setAcceleration(double acceleration) {
+        public void setAcceleration(Double acceleration) {
             this.acceleration = acceleration;
         }
 
-        void setPower(double power) {
+        public void setPower(double power) {
+            if (acceleration == null) {
+                this.immediatelySetPower(power);
+            } else {
+                targetPower = power;
+                //lastPowerCalculateTime = System.currentTimeMillis();
+            }
+        }
+
+        public void immediatelySetPower(double power) {
             targetPower = power;
+            currentPower = power;
             lastPowerCalculateTime = System.currentTimeMillis();
         }
 
-        double getPower() {
-            if (lastPowerCalculateTime == 0) {
+        public double getPower() {
+            if (lastPowerCalculateTime == 0 || acceleration == null) {
+                lastPowerCalculateTime = System.currentTimeMillis();
                 return currentPower;
             }
 
             double currentTime = System.currentTimeMillis();
-            double deltaTimeS = (currentTime - lastPowerCalculateTime) * 1000;
+            double deltaTimeS = (currentTime - lastPowerCalculateTime) / 1000;
             double powerDelta = acceleration * deltaTimeS;
             if (currentPower < targetPower) {
                 currentPower = Math.min(targetPower, currentPower + powerDelta);
@@ -85,13 +97,10 @@ public class OmniDrive {
     }
 
     public void setAcceleration(Double acceleration) {
-        if (acceleration == null) {
-            flSpeedController = null;
-        } else if (flSpeedController != null) {
-            flSpeedController.setAcceleration(acceleration);
-        } else {
-            flSpeedController = new SpeedController(acceleration);
-        }
+        flSpeedController.setAcceleration(acceleration);
+        frSpeedController.setAcceleration(acceleration);
+        blSpeedController.setAcceleration(acceleration);
+        brSpeedController.setAcceleration(acceleration);
     }
 
     public Double getCountsPerUnit(DistanceUnit unit) {
@@ -123,76 +132,76 @@ public class OmniDrive {
     }
 
     public void moveForward(double power) {
-        frontLeft.setPower(power);
-        frontRight.setPower(power);
-        backLeft.setPower(power);
-        backRight.setPower(power);
+        flSpeedController.setPower(power);
+        frSpeedController.setPower(power);
+        blSpeedController.setPower(power);
+        brSpeedController.setPower(power);
     }
 
     public void moveBackward(double power) {
-        frontLeft.setPower(-power);
-        frontRight.setPower(-power);
-        backLeft.setPower(-power);
-        backRight.setPower(-power);
+        flSpeedController.setPower(-power);
+        frSpeedController.setPower(-power);
+        blSpeedController.setPower(-power);
+        brSpeedController.setPower(-power);
     }
 
     public void moveLeft(double power) {
-        frontLeft.setPower(-power);
-        frontRight.setPower(power);
-        backLeft.setPower(power);
-        backRight.setPower(-power);
+        flSpeedController.setPower(-power);
+        frSpeedController.setPower(power);
+        blSpeedController.setPower(power);
+        brSpeedController.setPower(-power);
     }
 
     public void moveRight(double power) {
-        frontLeft.setPower(power);
-        frontRight.setPower(-power);
-        backLeft.setPower(-power);
-        backRight.setPower(power);
+        flSpeedController.setPower(power);
+        frSpeedController.setPower(-power);
+        blSpeedController.setPower(-power);
+        brSpeedController.setPower(power);
     }
 
     public void rotateRight(double power) {
-        frontLeft.setPower(power);
-        frontRight.setPower(-power);
-        backLeft.setPower(power);
-        backRight.setPower(-power);
+        flSpeedController.setPower(power);
+        frSpeedController.setPower(-power);
+        blSpeedController.setPower(power);
+        brSpeedController.setPower(-power);
     }
 
     public void rotateLeft(double power) {
-            frontLeft.setPower(-power);
-            frontRight.setPower(power);
-            backLeft.setPower(-power);
-            backRight.setPower(power);
+        flSpeedController.setPower(-power);
+        frSpeedController.setPower(power);
+        blSpeedController.setPower(-power);
+        brSpeedController.setPower(power);
     }
 
     public void moveForwardLeft(double power) {
-        frontLeft.setPower(0);
-        frontRight.setPower(power);
-        backLeft.setPower(power);
-        backRight.setPower(0);
+        flSpeedController.setPower(0);
+        frSpeedController.setPower(power);
+        blSpeedController.setPower(power);
+        brSpeedController.setPower(0);
     }
 
     public void moveForwardRight(double power) {
-        frontLeft.setPower(power);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(power);
+        flSpeedController.setPower(power);
+        frSpeedController.setPower(0);
+        blSpeedController.setPower(0);
+        brSpeedController.setPower(power);
     }
 
     public void moveBackwardLeft(double power) {
-        frontLeft.setPower(-power);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(-power);
+        flSpeedController.setPower(-power);
+        frSpeedController.setPower(0);
+        blSpeedController.setPower(0);
+        brSpeedController.setPower(-power);
     }
 
     public void moveBackwardRight(double power) {
-        frontLeft.setPower(0);
-        frontRight.setPower(-power);
-        backLeft.setPower(-power);
-        backRight.setPower(0);
+        flSpeedController.setPower(0);
+        frSpeedController.setPower(-power);
+        blSpeedController.setPower(-power);
+        brSpeedController.setPower(0);
     }
 
-    void updateMotorPowers() {
+    public void updateMotorPowers() {
         frontLeft.setPower(flSpeedController.getPower());
         frontRight.setPower(frSpeedController.getPower());
         backLeft.setPower(blSpeedController.getPower());
@@ -236,17 +245,17 @@ public class OmniDrive {
             br_power = br_power / power_max;
         }
         // Set motor powers
-        frontLeft.setPower(fl_power);
-        frontRight.setPower(fr_power);
-        backLeft.setPower(bl_power);
-        backRight.setPower(br_power);
+        flSpeedController.setPower(fl_power);
+        frSpeedController.setPower(fr_power);
+        blSpeedController.setPower(bl_power);
+        brSpeedController.setPower(br_power);
     }
 
     public void stopDrive() {
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
+        flSpeedController.immediatelySetPower(0);
+        frSpeedController.immediatelySetPower(0);
+        blSpeedController.immediatelySetPower(0);
+        brSpeedController.immediatelySetPower(0);
     }
 
     public void setMode(DcMotor.RunMode runMode) {
@@ -278,7 +287,11 @@ public class OmniDrive {
                 stopDrive();
             }
         } else {
-            if (gamepad.dpad_up && gamepad.dpad_left) {
+            if (gamepad.left_trigger > 0) {
+                rotateLeft(gamepad.left_trigger);
+            } else if (gamepad.right_trigger > 0) {
+                rotateRight(gamepad.right_trigger);
+            } else if (gamepad.dpad_up && gamepad.dpad_left) {
                 moveForwardLeft(power);
             } else if (gamepad.dpad_up && gamepad.dpad_right) {
                 moveForwardRight(power);
@@ -299,11 +312,7 @@ public class OmniDrive {
             }
         }
 
-        if (gamepad.left_trigger > 0) {
-            rotateLeft(gamepad.left_trigger);
-        } else if (gamepad.right_trigger > 0) {
-            rotateRight(gamepad.right_trigger);
-        }
+
 
 //        if (gamepad.left_bumper) {
 //            rotateLeft(0.25f);

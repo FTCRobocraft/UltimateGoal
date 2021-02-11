@@ -42,7 +42,7 @@ public class LocalizerMoveAction implements Action {
         double slowestDistanceInches = 4;
         double slowRotationThresholdDegrees = 15;
         double maxRotationSpeed = 0.5;
-        double distanceToleranceInches = 0.7;
+        double distanceToleranceInches = 0.75;
         double fastTargetDistanceToleranceInches = 3;
         double headingToleranceDegrees = 1;
         double speedStuckTimeoutMs = 750;
@@ -104,6 +104,12 @@ public class LocalizerMoveAction implements Action {
         // Get current robot position and orientation
         Position currentPosition = hardware.localizer.getEstimatedPosition().position;
         Orientation currentOrientation = hardware.localizer.getEstimatedOrientation().orientation;
+
+        Position estimatedPositionAtCurrentRate = Localizer.addPositions(
+            currentPosition,
+            Localizer.velocityToDelta(hardware.localizer.estimateVelocity(), hardware.getMsOfLastLoopExecutionTime(), DistanceUnit.INCH),
+            DistanceUnit.INCH
+        );
         if (currentPosition == null || currentOrientation == null) {
             // If either of these are null, it means that the robot's location is unknown
             // This point shouldn't be reached with input from the encoders
@@ -210,7 +216,7 @@ public class LocalizerMoveAction implements Action {
 
         if (currentTransformIndex >= transforms.length) {
             // Once the robot reached the target position, stop moving and end the action
-            hardware.omniDrive.stopDrive();
+            brake(hardware);
             return true;
         } else {
             String progress = String.format("[LMA] Current Target (in/deg)", "X: %.1f Y: %.1f H: %.1f",
@@ -227,6 +233,19 @@ public class LocalizerMoveAction implements Action {
 
             hardware.omniDrive.move(speed, robotMoveAngleRadians, robotRotation);
             return false;
+        }
+    }
+
+    void brake(RobotHardware hardware) {
+        double angVelocity = hardware.localizer.estimateAngularVelocity().zRotationRate;
+        if  (angVelocity > 0) {
+            hardware.omniDrive.rotateRight(1);
+            hardware.omniDrive.stopDrive();
+        } else if (angVelocity < 0) {
+            hardware.omniDrive.rotateLeft(1);
+            hardware.omniDrive.stopDrive();
+        } else {
+            hardware.omniDrive.stopDrive();
         }
     }
 
