@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous.sequences;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.action.DetectRingsAction;
 import org.firstinspires.ftc.teamcode.action.DisableTFODAction;
@@ -13,14 +15,19 @@ import org.firstinspires.ftc.teamcode.playmaker.Localizer;
 import org.firstinspires.ftc.teamcode.playmaker.Localizer.RobotTransform;
 import org.firstinspires.ftc.teamcode.playmaker.RobotHardware;
 
+@Config
 public class UltimateGoalWizardsSequence extends ActionSequence {
+
+    public static RobotTransform SHOOTING_POSITION = new RobotTransform(DistanceUnit.INCH, 1, -5, 66);
 
     public static RobotTransform[] SHOOTING_TRANSFORMS_NEAR_CENTER = {
             //new RobotTransform(DistanceUnit.INCH, 1, -18, 90),
-            new RobotTransform(DistanceUnit.INCH, -12, -3, 71)
+            SHOOTING_POSITION
     };
 
     static final LocalizerMoveAction.FollowPathMethod FOLLOW_PATH_METHOD = LocalizerMoveAction.FollowPathMethod.FAST;
+
+    // NOT THIS ONE
     static final RobotTransform SHOOTING_POSITION_NEAR_WALL = new RobotTransform(DistanceUnit.INCH, -3, -36, 90);
     static final RobotTransform PARKING_POSITION_NEAR_CENTER = new RobotTransform(DistanceUnit.INCH, 12, -12, 90);
     static final RobotTransform PARKING_POSITION_NEAR_WALL = new RobotTransform(DistanceUnit.INCH, 12, -36, 90);

@@ -34,20 +34,20 @@ public class LocalizerMoveAction implements Action {
             this.rotateSpeed = rotateSpeed;
         }
 
-        FollowPathMethod pathMethod;
-        double fullSpeed;
-        double preciseSpeed;
-        double rotateSpeed;
-        double slowdownDistanceInches = 16;
-        double slowestDistanceInches = 1;
-        double slowRotationThresholdDegrees = 15;
-        double maxRotationSpeed = 1;
-        double distanceToleranceInches = 0.75;
-        double fastTargetDistanceToleranceInches = 3;
-        double headingToleranceDegrees = 1;
-        double speedStuckTimeoutMs = 1000;
-        double speedStuckBumpAmount = 0.10;
-        double speedStuckDistanceThresholdInches = 0.2;
+        public FollowPathMethod pathMethod;
+        public double fullSpeed;
+        public double preciseSpeed;
+        public double rotateSpeed;
+        public double slowdownDistanceInches = 12;
+        public double slowestDistanceInches = 0;
+        public double slowRotationThresholdDegrees = 5;
+        public double maxRotationSpeed = 1;
+        public double distanceToleranceInches = 0.25;
+        public double fastTargetDistanceToleranceInches = 3;
+        public double headingToleranceDegrees = 1;
+        public double speedStuckTimeoutMs = 1000;
+        public double speedStuckBumpAmount = 0.10;
+        public double speedStuckDistanceThresholdInches = 0.2;
     }
 
     public LocalizerMoveAction(RobotTransform transform, LocalizerMoveActionParameters parameters) {

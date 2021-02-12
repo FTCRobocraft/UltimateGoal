@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.playmaker;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -74,14 +75,12 @@ public abstract class RobotHardware extends OpMode {
             return;
         }
 
-        vuforiaParameters = new VuforiaLocalizer.Parameters();
-
-//        try {
-//            int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//            vuforiaParameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-//        } catch (Exception e) {
-//            vuforiaParameters = new VuforiaLocalizer.Parameters();
-//        }
+        try {
+            int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            vuforiaParameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        } catch (Exception e) {
+            vuforiaParameters = new VuforiaLocalizer.Parameters();
+        }
 
         vuforiaParameters.vuforiaLicenseKey = vuforiaKey;
 
@@ -96,6 +95,7 @@ public abstract class RobotHardware extends OpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
+        FtcDashboard.getInstance().startCameraStream(vuforia, 5);
 
     }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,29 +21,34 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGR
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 
+@Config
 public abstract class UltimateGoalHardware extends RobotHardware {
 
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
 
-    public static final Double ACCELERATION = 5D;
-    public static final Position SHOOTING_POSITION_RED_NEAR_CENTER = Localizer.createPosition(DistanceUnit.INCH, -3, -12);
-    public static final Position SHOOTING_POSITION_RED_ALIGNED_GOAL = Localizer.createPosition(DistanceUnit.INCH, -3, -36);
-    public static final double SHOOTER_HEADING_OFFSET = -10;
-    public static final double SHOOTER_POWER = 0.5235;
-    public static final double SHOOTER_RPM = 2800;
-    public static final double COUNTS_PER_SHOOTER_REV = 28;
-    public static final double SHOOTER_RPM_THRESHOLD = 100;
-    public static final double WOBBLE_GOAL_POWER_ZERO_THRESHOLD = 25;
-    public static final LocalizerMoveAction.LocalizerMoveActionParameters defaultLocalizerMoveParameters = new LocalizerMoveAction.LocalizerMoveActionParameters(
+    public static  Double ACCELERATION = null;
+    public static  Position SHOOTING_POSITION_RED_NEAR_CENTER = Localizer.createPosition(DistanceUnit.INCH, -3, -12);
+    public static  Position SHOOTING_POSITION_RED_ALIGNED_GOAL = Localizer.createPosition(DistanceUnit.INCH, -3, -36);
+    public static double SHOOTER_HEADING_OFFSET = -10;
+    public static double SHOOTER_POWER = 0.5235;
+    public static double SHOOTER_RPM = 2800;
+    public static double COUNTS_PER_SHOOTER_REV = 28;
+    public static double SHOOTER_RPM_THRESHOLD = 100;
+    public static double WOBBLE_GOAL_POWER_ZERO_THRESHOLD = 25;
+    public static LocalizerMoveAction.LocalizerMoveActionParameters defaultLocalizerMoveParameters = new LocalizerMoveAction.LocalizerMoveActionParameters(
             LocalizerMoveAction.FollowPathMethod.FAST,
             0.7f,
-            0.275,
-            0.25);
+            0.15,
+            0.225);
 
-    public boolean spinShooter = false;
-    public boolean extendWobbleGoal = false;
+    public static double OMNI_DRIVE_LAT_MOVEMENT_MULTIPLIER = 1.5;
+
+    public static boolean spinShooter = false;
+    public static boolean extendWobbleGoal = false;
+    public static boolean useEncodersOnShooter = true;
+
     double currentShooterPower = 0;
     double currentShooterRPM = 0;
     int wobbleGoalHolderInitPos;
@@ -69,14 +76,15 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     public DcMotor wobbleGoalHolder;
     public Servo wobbleServo;
 
-    public final static double COUNTS_PER_ENCODER_REV = 8192;
-    public final static double WHEEL_DIAMETER_IN = 4.0;
-    public final static double COUNTS_PER_WOBBLE_REVOLUTION = 288;
+    public static double COUNTS_PER_ENCODER_REV = 8192;
+    public static double WHEEL_DIAMETER_IN = 4.0;
+    public static double COUNTS_PER_WOBBLE_REVOLUTION = 288;
 
-    public double P = 50;
-    public double I = 0;
-    public double D = 0;
-    public double F = 1;
+    public static double F = 15;
+    public static double P = 150;
+    public static double I = 0;
+    public static double D = 0;
+
 
     @Override
     public void initializeHardware() {
@@ -112,7 +120,9 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         this.initializeOmniDrive(frontLeft, frontRight, backLeft, backRight);
         this.omniDrive.setCountsPerInch(COUNTS_PER_ENCODER_REV/(Math.PI*WHEEL_DIAMETER_IN));
         this.omniDrive.setAcceleration(ACCELERATION);
+        this.omniDrive.horizontalMovementScaleFactor = OMNI_DRIVE_LAT_MOVEMENT_MULTIPLIER;
         omniDrive.setZeroPowerMode(DcMotor.ZeroPowerBehavior.BRAKE);
+        telemetry = FtcDashboard.getInstance().getTelemetry();
     }
 
     @Override
@@ -149,13 +159,22 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         wobbleGoalHolder.setPower(countsFromTarget <= WOBBLE_GOAL_POWER_ZERO_THRESHOLD ? 0 : 1);
 
         // TEMPORARY FOR TUNING
-        // shooter.setVelocity(spinShooter ? rpmToCPS(SHOOTER_RPM) : 0);
+
         double rpm = cpsToRPM(shooter.getVelocity());
         telemetry.addData("[UltimateGoalHardware] Shooter Power", "%.1f", currentShooterPower);
         telemetry.addData("[UltimateGoalHardware] Shooter TPS", "%.1f", shooter.getVelocity());
         telemetry.addData("[UltimateGoalHardware] Shooter RPM", "%.1f",  rpm);
-        telemetry.addData("[UltimateGoalHardware] PIDF", "%.1f %.1f %.1f %.1f",  P, I, D, F);
-        shooter.setVelocityPIDFCoefficients(P, I, D, F);
+
+
+        if (useEncodersOnShooter) {
+            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            telemetry.addData("[UltimateGoalHardware] PIDF", "%.1f %.1f %.1f %.1f",  P, I, D, F);
+            shooter.setVelocityPIDFCoefficients(P, I, D, F);
+            shooter.setVelocity(spinShooter ? rpmToCPS(SHOOTER_RPM) : 0);
+        } else {
+            shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            shooter.setPower(spinShooter ? SHOOTER_POWER : 0);
+        }
     }
 
     public void setShooterEnabled(boolean enabled) {

@@ -159,6 +159,14 @@ public class GamepadActions {
         return state.toggle;
     }
 
+    public boolean isFirstPressAndToggled(GamepadType type, GamepadButtons button) {
+        return isFirstPress(type, button) && isToggled(type, button);
+    }
+
+    public boolean isFirstPressAndNotToggled(GamepadType type, GamepadButtons button) {
+        return isFirstPress(type, button) && !isToggled(type, button);
+    }
+
     public void setToggleStateFor(boolean newState, GamepadType type, GamepadButtons button) {
         GamepadButtonState state = getStateFor(type, button);
         state.toggle = newState;

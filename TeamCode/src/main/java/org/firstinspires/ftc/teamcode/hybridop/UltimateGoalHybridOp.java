@@ -75,12 +75,14 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
                 escalator.setPower(0);
             }
 
-            extendWobbleGoal = gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x);
             if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x) && extendWobbleGoal) {
+                extendWobbleGoal = gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x);
                 gamepadActions.setToggleStateFor(false, GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a);
             }
 
-            this.setShooterEnabled(gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y));
+            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y)) {
+                this.setShooterEnabled(gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y));
+            }
         }
 
 
