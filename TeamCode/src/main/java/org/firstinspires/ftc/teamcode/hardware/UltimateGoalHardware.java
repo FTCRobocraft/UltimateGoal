@@ -34,6 +34,8 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     public static double SHOOTER_HEADING_OFFSET = -10;
     public static double SHOOTER_POWER = 0.5235;
     public static double SHOOTER_RPM = 2800;
+    public static double SHOOTER_SLOW_RPM = 2600;
+    public static double targetRpm = SHOOTER_RPM;
     public static double COUNTS_PER_SHOOTER_REV = 28;
     public static double SHOOTER_RPM_THRESHOLD = 100;
     public static double WOBBLE_GOAL_POWER_ZERO_THRESHOLD = 25;
@@ -81,7 +83,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     public static double COUNTS_PER_WOBBLE_REVOLUTION = 288;
 
     public static double F = 15;
-    public static double P = 150;
+    public static double P = 100;
     public static double I = 0;
     public static double D = 0;
 
@@ -104,6 +106,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         wobbleGoalHolderInitPos = wobbleGoalHolder.getCurrentPosition();
         wobbleGoalHolder.setTargetPosition(wobbleGoalHolderInitPos); // 72 = 90deg
         wobbleGoalHolder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        targetRpm = SHOOTER_RPM;
 
         wobbleServo = this.initializeDevice(Servo.class, "wobbleServo");
         wobbleServo.setPosition(0);
@@ -122,7 +125,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         this.omniDrive.setAcceleration(ACCELERATION);
         this.omniDrive.horizontalMovementScaleFactor = OMNI_DRIVE_LAT_MOVEMENT_MULTIPLIER;
         omniDrive.setZeroPowerMode(DcMotor.ZeroPowerBehavior.BRAKE);
-        telemetry = FtcDashboard.getInstance().getTelemetry();
+        //telemetry = FtcDashboard.getInstance().getTelemetry();
     }
 
     @Override
@@ -155,14 +158,16 @@ public abstract class UltimateGoalHardware extends RobotHardware {
             wobbleGoalHolder.setTargetPosition(wobbleGoalHolderInitPos);
         }
 
-        int countsFromTarget = Math.abs(wobbleGoalHolder.getTargetPosition() - wobbleGoalHolder.getCurrentPosition());
-        wobbleGoalHolder.setPower(countsFromTarget <= WOBBLE_GOAL_POWER_ZERO_THRESHOLD ? 0 : 1);
+//        int countsFromTarget = Math.abs(wobbleGoalHolder.getTargetPosition() - wobbleGoalHolder.getCurrentPosition());
+//        wobbleGoalHolder.setPower(countsFromTarget <= WOBBLE_GOAL_POWER_ZERO_THRESHOLD ? 0 : 1);
+        wobbleGoalHolder.setPower(0);
 
         // TEMPORARY FOR TUNING
 
         double rpm = cpsToRPM(shooter.getVelocity());
         telemetry.addData("[UltimateGoalHardware] Shooter Power", "%.1f", currentShooterPower);
         telemetry.addData("[UltimateGoalHardware] Shooter TPS", "%.1f", shooter.getVelocity());
+        telemetry.addData("[UltimateGoalHardware] Target RPM", "%.1f",  targetRpm);
         telemetry.addData("[UltimateGoalHardware] Shooter RPM", "%.1f",  rpm);
 
 
@@ -170,10 +175,10 @@ public abstract class UltimateGoalHardware extends RobotHardware {
             shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             telemetry.addData("[UltimateGoalHardware] PIDF", "%.1f %.1f %.1f %.1f",  P, I, D, F);
             shooter.setVelocityPIDFCoefficients(P, I, D, F);
-            shooter.setVelocity(spinShooter ? rpmToCPS(SHOOTER_RPM) : 0);
+            shooter.setVelocity(spinShooter ? rpmToCPS(targetRpm) : 0);
         } else {
             shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            shooter.setPower(spinShooter ? SHOOTER_POWER : 0);
+            shooter.setPower(spinShooter ? targetRpm : 0);
         }
     }
 
@@ -183,7 +188,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
 
     public boolean canShoot() {
         double rpm = cpsToRPM(shooter.getVelocity());
-        boolean rpmReady = Math.abs(rpm - this.SHOOTER_RPM) <= SHOOTER_RPM_THRESHOLD;
+        boolean rpmReady = Math.abs(rpm - targetRpm) <= SHOOTER_RPM_THRESHOLD;
         return rpmReady;
     }
 

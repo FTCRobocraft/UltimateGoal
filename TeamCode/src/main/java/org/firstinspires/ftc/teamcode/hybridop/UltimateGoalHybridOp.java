@@ -31,7 +31,7 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
 
     float omniDrivePower = 1f;
     boolean slowMode = false;
-    float slowModeMultiplier = 0.5f;
+    float slowModeMultiplier = 0.33f;
 
     abstract RobotHardware.Team getTeam();
 
@@ -53,37 +53,31 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
         omniDrive.dpadMove(gamepad1, slowMode ? omniDrivePower * slowModeMultiplier : omniDrivePower, false);
         // endregion
 
+        targetRpm = gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.back) ? SHOOTER_SLOW_RPM : SHOOTER_RPM;
 
-
-        if (gamepad1.back) {
-            collector.setPower(0);
-            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y)) {
-                localizer.syncEncodersWithVuforia();
-            }
+        if (gamepad1.start) {
+            collector.setPower(-1);
+        } else if (gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a)) {
+            collector.setPower(1);
         } else {
-            if (gamepad1.start) {
-                collector.setPower(-1);
-            } else if (gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a)) {
-                collector.setPower(1);
-            } else {
-                collector.setPower(0);
-            }
-
-            if (gamepad1.b  && this.canShoot()) {
-                escalator.setPower(1);
-            } else {
-                escalator.setPower(0);
-            }
-
-            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x) && extendWobbleGoal) {
-                extendWobbleGoal = gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x);
-                gamepadActions.setToggleStateFor(false, GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a);
-            }
-
-            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y)) {
-                this.setShooterEnabled(gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y));
-            }
+            collector.setPower(0);
         }
+
+        if (gamepad1.b  && this.canShoot()) {
+            escalator.setPower(1);
+        } else {
+            escalator.setPower(0);
+        }
+
+        if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x) && extendWobbleGoal) {
+            extendWobbleGoal = gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.x);
+            gamepadActions.setToggleStateFor(false, GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a);
+        }
+
+        if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y)) {
+            this.setShooterEnabled(gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y));
+        }
+
 
 
 
@@ -111,18 +105,18 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
 
     @Override
     public void hybrid_loop() {
-        // Navigate and shoot rings
-        gamepadActions.setDisableToggle(false);
-        if (gamepad1.back) {
-            gamepadActions.setDisableToggle(true);
-            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a)) {
-                hybridOpExecutor.executeActionSequence(new NavigateAndShootRingsSequence(getTeam(), UltimateGoalHardware.SHOOTING_POSITION_RED_NEAR_CENTER), true, true);
-            }
-
-            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.b)) {
-                hybridOpExecutor.executeActionSequence(new NavigateAndShootPowerTargetsSequence(getTeam()), true, true);
-            }
-        }
+//        // Navigate and shoot rings
+//        gamepadActions.setDisableToggle(false);
+//        if (gamepad1.back) {
+//            gamepadActions.setDisableToggle(true);
+//            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a)) {
+//                hybridOpExecutor.executeActionSequence(new NavigateAndShootRingsSequence(getTeam(), UltimateGoalHardware.SHOOTING_POSITION_RED_NEAR_CENTER), true, true);
+//            }
+//
+//            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.b)) {
+//                hybridOpExecutor.executeActionSequence(new NavigateAndShootPowerTargetsSequence(getTeam()), true, true);
+//            }
+//        }
     }
 
     @Override

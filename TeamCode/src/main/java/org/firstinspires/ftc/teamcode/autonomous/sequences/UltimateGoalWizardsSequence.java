@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.action.EnableCollectorAction;
 import org.firstinspires.ftc.teamcode.action.ExecuteSequenceAction;
 import org.firstinspires.ftc.teamcode.action.IfActionResult;
 import org.firstinspires.ftc.teamcode.action.LocalizerMoveAction;
+import org.firstinspires.ftc.teamcode.action.WaitAction;
 import org.firstinspires.ftc.teamcode.hardware.UltimateGoalHardware;
 import org.firstinspires.ftc.teamcode.playmaker.ActionSequence;
 import org.firstinspires.ftc.teamcode.playmaker.Localizer;
@@ -18,11 +19,15 @@ import org.firstinspires.ftc.teamcode.playmaker.RobotHardware;
 @Config
 public class UltimateGoalWizardsSequence extends ActionSequence {
 
-    public static RobotTransform SHOOTING_POSITION = new RobotTransform(DistanceUnit.INCH, 1, -5, 66);
-
-    public static RobotTransform[] SHOOTING_TRANSFORMS_NEAR_CENTER = {
+    public static RobotTransform[] SHOOTING_TRANSFORMS_RED = {
             //new RobotTransform(DistanceUnit.INCH, 1, -18, 90),
-            SHOOTING_POSITION
+            new RobotTransform(DistanceUnit.INCH, -2, -5, 68)
+    };
+
+    public static RobotTransform[] SHOOTING_TRANSFORMS_BLUE = {
+            //new RobotTransform(DistanceUnit.INCH, 1, -18, 90),
+            new RobotTransform(DistanceUnit.INCH, -5, -4, 70)
+
     };
 
     static final LocalizerMoveAction.FollowPathMethod FOLLOW_PATH_METHOD = LocalizerMoveAction.FollowPathMethod.FAST;
@@ -39,7 +44,7 @@ public class UltimateGoalWizardsSequence extends ActionSequence {
 
         if (team == RobotHardware.Team.RED && startingPosition == UltimateGoalHardware.UltimateGoalStartingPosition.LEFT) {
             // RED LEFT
-            shootingPosition = SHOOTING_TRANSFORMS_NEAR_CENTER.clone();
+            shootingPosition = SHOOTING_TRANSFORMS_RED.clone();
             parkingPosition = new RobotTransform[] { PARKING_POSITION_NEAR_CENTER };
         } else if (team == RobotHardware.Team.RED && startingPosition == UltimateGoalHardware.UltimateGoalStartingPosition.RIGHT) {
             // RED RIGHT
@@ -51,7 +56,7 @@ public class UltimateGoalWizardsSequence extends ActionSequence {
             parkingPosition = new RobotTransform[] { Localizer.mirrorTransformOverTeamLine(PARKING_POSITION_NEAR_WALL)};
         } else {
             // BLUE RIGHT
-            shootingPosition = Localizer.mirrorTransformsOverTeamLine(SHOOTING_TRANSFORMS_NEAR_CENTER.clone());
+            shootingPosition = Localizer.mirrorTransformsOverTeamLine(SHOOTING_TRANSFORMS_BLUE.clone());
             parkingPosition = new RobotTransform[] { Localizer.mirrorTransformOverTeamLine(PARKING_POSITION_NEAR_CENTER) };
         }
 
@@ -59,6 +64,9 @@ public class UltimateGoalWizardsSequence extends ActionSequence {
         RobotTransform finalShootingPosition = shootingPosition[shootingPosition.length - 1].copy();
         finalShootingPosition.heading += UltimateGoalHardware.SHOOTER_HEADING_OFFSET;
         shootingPosition[shootingPosition.length - 1] = finalShootingPosition;
+
+        // Wizard requested 15 second delay
+        addAction(new WaitAction(15 * 1000));
 
         // Move to shooting position
         addAction(new LocalizerMoveAction(shootingPosition, UltimateGoalHardware.defaultLocalizerMoveParameters));
