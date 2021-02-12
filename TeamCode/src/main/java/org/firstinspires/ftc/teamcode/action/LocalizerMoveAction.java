@@ -38,15 +38,15 @@ public class LocalizerMoveAction implements Action {
         double fullSpeed;
         double preciseSpeed;
         double rotateSpeed;
-        double slowdownDistanceInches = 12;
-        double slowestDistanceInches = 4;
+        double slowdownDistanceInches = 16;
+        double slowestDistanceInches = 1;
         double slowRotationThresholdDegrees = 15;
-        double maxRotationSpeed = 0.5;
+        double maxRotationSpeed = 1;
         double distanceToleranceInches = 0.75;
         double fastTargetDistanceToleranceInches = 3;
         double headingToleranceDegrees = 1;
-        double speedStuckTimeoutMs = 750;
-        double speedStuckBumpAmount = 0.15;
+        double speedStuckTimeoutMs = 1000;
+        double speedStuckBumpAmount = 0.10;
         double speedStuckDistanceThresholdInches = 0.2;
     }
 
@@ -87,8 +87,9 @@ public class LocalizerMoveAction implements Action {
     }
 
     double speedForDistance(double distance) {
-        double slope = (preciseSpeed - fullSpeed) / (parameters.slowestDistanceInches - parameters.slowdownDistanceInches);
-        return Math.min(fullSpeed, Math.max(slope * distance - preciseSpeed, preciseSpeed));
+        double slope = (fullSpeed - preciseSpeed) / (parameters.slowdownDistanceInches - parameters.slowestDistanceInches);
+        double b = preciseSpeed - (slope * parameters.slowestDistanceInches);
+        return Math.min(fullSpeed, Math.max(slope * distance + b, preciseSpeed));
     }
 
     @Override
@@ -192,10 +193,8 @@ public class LocalizerMoveAction implements Action {
                         } else {
                             robotRotation = angDiffToTargetHeadingDegrees > 0 ? 2 * rotateSpeed : -2 * rotateSpeed;
                         }
-                    } else {
-                        if (withinSlowdownDistance) {
-                            robotRotation = angDiffToTargetHeadingDegrees / 180;
-                        }
+                    } else if (withinSlowdownDistance) {
+                        robotRotation = angDiffToTargetHeadingDegrees / 180;
                     }
                 }
 
@@ -231,22 +230,13 @@ public class LocalizerMoveAction implements Action {
             hardware.telemetry.addData("[LMA] AFTT", "%.1f deg", angDiffBetweenForwardAndTargetPosDegrees);
             hardware.telemetry.addData("[LMA] ATTH", "%.1f deg", angDiffToTargetHeadingDegrees);
 
-            hardware.omniDrive.move(speed, robotMoveAngleRadians, robotRotation);
+            hardware.omniDrive.move(speed, robotMoveAngleRadians, robotRotation, false);
             return false;
         }
     }
 
     void brake(RobotHardware hardware) {
-        double angVelocity = hardware.localizer.estimateAngularVelocity().zRotationRate;
-        if  (angVelocity > 0) {
-            hardware.omniDrive.rotateRight(1);
-            hardware.omniDrive.stopDrive();
-        } else if (angVelocity < 0) {
-            hardware.omniDrive.rotateLeft(1);
-            hardware.omniDrive.stopDrive();
-        } else {
-            hardware.omniDrive.stopDrive();
-        }
+        hardware.omniDrive.stopDrive();
     }
 
     @Override

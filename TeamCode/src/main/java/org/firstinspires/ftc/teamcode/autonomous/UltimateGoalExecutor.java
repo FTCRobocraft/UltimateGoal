@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.autonomous.sequences.UltimateGoalSequence;
+import org.firstinspires.ftc.teamcode.autonomous.sequences.UltimateGoalWizardsSequence;
 import org.firstinspires.ftc.teamcode.hardware.UltimateGoalHardware;
 import org.firstinspires.ftc.teamcode.playmaker.ActionSequence;
 import org.firstinspires.ftc.teamcode.playmaker.Autonomous;

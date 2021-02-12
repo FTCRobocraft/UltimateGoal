@@ -57,7 +57,7 @@ public class Localizer {
     private static final float quadField  = 36 * mmPerInch;
     private boolean allowVuforiaMeasurement = false;
 
-    public double distanceToAcceptVuforiaInches = 24;
+    public double distanceToAcceptVuforiaInches = 0;
     public double encodersXScaleFactor = 1;
     public double encodersYScaleFactor = 1;
 

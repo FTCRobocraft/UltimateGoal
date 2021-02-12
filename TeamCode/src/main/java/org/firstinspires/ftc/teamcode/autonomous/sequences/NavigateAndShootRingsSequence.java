@@ -14,6 +14,7 @@ public class NavigateAndShootRingsSequence extends ActionSequence {
 
     public static final Position RED_GOAL_ON_FIELD = new Position(DistanceUnit.INCH, 72, -36, 0, 0);
 
+    public NavigateAndShootRingsSequence(RobotHardware.Team team, Position shootingPositionOnRedSide) {
         Position shootingPosition;
         Position goalPosition;
         if (team == RobotHardware.Team.RED) {

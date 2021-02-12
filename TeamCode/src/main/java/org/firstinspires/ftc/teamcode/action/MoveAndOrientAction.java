@@ -88,7 +88,7 @@ public class MoveAndOrientAction implements Action {
         } else if (withinDistanceTolerance) {
             hardware.omniDrive.rotateRight(angularDifferenceToTargetHeading > 0 ? 0.275 : -0.275);
         } else {
-            hardware.omniDrive.move(movePower, Math.toRadians(angDiffBetweenForwardAndTargetPos), angularDifferenceToTargetHeading/180);
+            hardware.omniDrive.move(movePower, Math.toRadians(angDiffBetweenForwardAndTargetPos), angularDifferenceToTargetHeading/180, false);
         }
         return false;
     }

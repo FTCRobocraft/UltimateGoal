@@ -13,7 +13,7 @@ public class NavigateAndShootPowerTargetsSequence extends ActionSequence {
 
     static final double DISTANCE_BETWEEN_POWERSHOT_TARGETS_INCHES = 7.5;
     static final double HALF_FIELD_LENGTH_INCHES = 72;
-    public static final RobotTransform SHOOTING_POSITION_CENTER_TARGET_RED_TEAM = new Localizer.RobotTransform(DistanceUnit.INCH, -3, -36, 90);
+    public static final RobotTransform SHOOTING_POSITION_CENTER_TARGET_RED_TEAM = new Localizer.RobotTransform(DistanceUnit.INCH, -3, -12, 90);
 
     public NavigateAndShootPowerTargetsSequence(RobotHardware.Team team) {
         RobotTransform shootingPosition;

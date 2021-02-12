@@ -31,6 +31,8 @@ public class GamepadActions {
         guide
     }
 
+    private boolean disableToggle = false;
+
     private class GamepadButtonState {
         boolean prev_pressed = false;
         boolean pressed = false;
@@ -48,6 +50,10 @@ public class GamepadActions {
         }
     }
 
+    public void setDisableToggle(boolean disable) {
+        this.disableToggle = disable;
+    }
+
     private GamepadButtonState getStateFor(GamepadType type, GamepadButtons button) {
         GamepadButtonState state;
         if (type == GamepadType.ONE) {
@@ -62,11 +68,13 @@ public class GamepadActions {
     private void updateValuesForButton(GamepadButtons button, boolean pressed1, boolean pressed2) {
         GamepadButtonState state1 = gamepad1State.get(button);
         state1.pressed = pressed1;
-        state1.toggle = (!state1.prev_pressed && state1.pressed) ? !state1.toggle : state1.toggle;
-
         GamepadButtonState state2 = gamepad2State.get(button);
         state2.pressed = pressed2;
-        state2.toggle = (!state2.prev_pressed && state2.pressed) ? !state2.toggle : state2.toggle;
+
+        if (!disableToggle) {
+            state1.toggle = (!state1.prev_pressed && state1.pressed) ? !state1.toggle : state1.toggle;
+            state2.toggle = (!state2.prev_pressed && state2.pressed) ? !state2.toggle : state2.toggle;
+        }
     }
 
     /**

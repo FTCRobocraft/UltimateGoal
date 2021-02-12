@@ -16,6 +16,7 @@ public class OmniDrive {
     public SpeedController frSpeedController = new SpeedController(DEFAULT_ACCELERATION);
     public SpeedController blSpeedController = new SpeedController(DEFAULT_ACCELERATION);
     public SpeedController brSpeedController = new SpeedController(DEFAULT_ACCELERATION);
+    public double horizontalMovementScaleFactor = 1;
 
 
     private Double countsPerInch;
@@ -215,24 +216,25 @@ public class OmniDrive {
      * @param angleInRadians The heading (IN RADIANS) to move the robot in, 0 is forward rotating clockwise.
      * @param rotation How fast to rotate from -1 to 1 where 1 indicates CW rotation and full rotation w/ no movement.
      */
-    public void move(double power, double angleInRadians, double rotation) {
+    public void move(double power, double angleInRadians, double rotation, boolean useAcceleration) {
 
         double pi4 = Math.PI / 4;
 
         // Get raw powers
-        double fl_power = power * Math.sin(angleInRadians + pi4) + rotation;
-        double fr_power = power * Math.cos(angleInRadians + pi4) - rotation;
-        double bl_power = power * Math.cos(angleInRadians + pi4) + rotation;
-        double br_power = power * Math.sin(angleInRadians + pi4) - rotation;
+        double scaleFactor = (1 + horizontalMovementScaleFactor * Math.sin(Math.abs(angleInRadians)));
+        double fl_power = (power * Math.sin(angleInRadians + pi4) * scaleFactor) + rotation;
+        double fr_power = (power * Math.cos(angleInRadians + pi4) * scaleFactor) - rotation;
+        double bl_power = (power * Math.cos(angleInRadians + pi4) * scaleFactor) + rotation;
+        double br_power = (power * Math.sin(angleInRadians + pi4) * scaleFactor) - rotation;
 
-        double avg_power = (Math.abs(fl_power) + Math.abs(fr_power) + Math.abs(bl_power) + Math.abs(br_power)) / 4.0;
-        if (avg_power < power) {
-            double power_upscale = power/avg_power;
-            fl_power *= power_upscale;
-            fr_power *= power_upscale;
-            bl_power *= power_upscale;
-            br_power *= power_upscale;
-        }
+//        double avg_power = (Math.abs(fl_power) + Math.abs(fr_power) + Math.abs(bl_power) + Math.abs(br_power)) / 4.0;
+//        if (avg_power < power) {
+//            double power_upscale = power/avg_power;
+//            fl_power *= power_upscale;
+//            fr_power *= power_upscale;
+//            bl_power *= power_upscale;
+//            br_power *= power_upscale;
+//        }
 
         // Calculate unit vector and apply power magnitude
         double power_max = Math.max(Math.max(fl_power, fr_power), Math.max(bl_power, br_power));
@@ -245,10 +247,18 @@ public class OmniDrive {
             br_power = br_power / power_max;
         }
         // Set motor powers
-        flSpeedController.setPower(fl_power);
-        frSpeedController.setPower(fr_power);
-        blSpeedController.setPower(bl_power);
-        brSpeedController.setPower(br_power);
+        if (useAcceleration) {
+            flSpeedController.setPower(fl_power);
+            frSpeedController.setPower(fr_power);
+            blSpeedController.setPower(bl_power);
+            brSpeedController.setPower(br_power);
+        } else {
+            flSpeedController.immediatelySetPower(fl_power);
+            frSpeedController.immediatelySetPower(fr_power);
+            blSpeedController.immediatelySetPower(bl_power);
+            brSpeedController.immediatelySetPower(br_power);
+        }
+
     }
 
     public void stopDrive() {
@@ -263,6 +273,13 @@ public class OmniDrive {
         frontRight.setMode(runMode);
         backLeft.setMode(runMode);
         backRight.setMode(runMode);
+    }
+
+    public void setZeroPowerMode(DcMotor.ZeroPowerBehavior behavior) {
+        frontLeft.setZeroPowerBehavior(behavior);
+        frontRight.setZeroPowerBehavior(behavior);
+        backLeft.setZeroPowerBehavior(behavior);
+        backRight.setZeroPowerBehavior(behavior);
     }
 
     public void dpadMove(Gamepad gamepad, float power, boolean reverse) {

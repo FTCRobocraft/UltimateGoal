@@ -25,20 +25,20 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
 
-    public static final Double ACCELERATION = 3D;
+    public static final Double ACCELERATION = 5D;
     public static final Position SHOOTING_POSITION_RED_NEAR_CENTER = Localizer.createPosition(DistanceUnit.INCH, -3, -12);
     public static final Position SHOOTING_POSITION_RED_ALIGNED_GOAL = Localizer.createPosition(DistanceUnit.INCH, -3, -36);
     public static final double SHOOTER_HEADING_OFFSET = -10;
     public static final double SHOOTER_POWER = 0.5235;
-    public static final double SHOOTER_RPM = 2600;
+    public static final double SHOOTER_RPM = 2800;
     public static final double COUNTS_PER_SHOOTER_REV = 28;
     public static final double SHOOTER_RPM_THRESHOLD = 100;
     public static final double WOBBLE_GOAL_POWER_ZERO_THRESHOLD = 25;
     public static final LocalizerMoveAction.LocalizerMoveActionParameters defaultLocalizerMoveParameters = new LocalizerMoveAction.LocalizerMoveActionParameters(
             LocalizerMoveAction.FollowPathMethod.FAST,
-            1f,
-            0.3,
-            0.3);
+            0.7f,
+            0.275,
+            0.25);
 
     boolean spinShooter = false;
     public boolean extendWobbleGoal = false;
@@ -84,6 +84,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         shooter = this.initializeDevice(DcMotorEx.class, "shooter");
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         collector = this.initializeDevice(DcMotor.class, "collector");
         escalator = this.initializeDevice(DcMotor.class, "escalator");
         wobbleGoalHolder = this.initializeDevice(DcMotor.class, "wobble");
@@ -106,6 +107,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         this.initializeOmniDrive(frontLeft, frontRight, backLeft, backRight);
         this.omniDrive.setCountsPerInch(COUNTS_PER_ENCODER_REV/(Math.PI*WHEEL_DIAMETER_IN));
         this.omniDrive.setAcceleration(ACCELERATION);
+        omniDrive.setZeroPowerMode(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
@@ -114,7 +116,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         //this.localizer.setRobotStart(revIMU, 90);
         this.localizer.encodersXScaleFactor = 40.0/48.0; // ANTI JANK
         this.localizer.loadUltimateGoalTrackables(this,
-                new Position(DistanceUnit.INCH, -0, 0, 9.25, 0),
+                new Position(DistanceUnit.INCH, -0, 0, 9, 0),
                 new Orientation(EXTRINSIC, YZX, DEGREES, 0, 0, 0, 0));
 
     }

@@ -110,10 +110,11 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
     @Override
     public void hybrid_loop() {
         // Navigate and shoot rings
-
+        gamepadActions.setDisableToggle(false);
         if (gamepad1.back) {
+            gamepadActions.setDisableToggle(true);
             if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a)) {
-                hybridOpExecutor.executeActionSequence(new NavigateAndShootRingsSequence(getTeam()), true, true);
+                hybridOpExecutor.executeActionSequence(new NavigateAndShootRingsSequence(getTeam(), UltimateGoalHardware.SHOOTING_POSITION_RED_NEAR_CENTER), true, true);
             }
 
             if (gamepadActions.isFirstPress(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.b)) {
