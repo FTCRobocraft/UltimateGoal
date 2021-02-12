@@ -73,6 +73,11 @@ public abstract class UltimateGoalHardware extends RobotHardware {
     public final static double WHEEL_DIAMETER_IN = 4.0;
     public final static double COUNTS_PER_WOBBLE_REVOLUTION = 288;
 
+    public double P = 50;
+    public double I = 0;
+    public double D = 0;
+    public double F = 1;
+
     @Override
     public void initializeHardware() {
         frontLeft = this.initializeDevice(DcMotor.class, "frontLeft");
@@ -148,6 +153,8 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         telemetry.addData("[UltimateGoalHardware] Shooter Power", "%.1f", currentShooterPower);
         telemetry.addData("[UltimateGoalHardware] Shooter DPS", "%.1f", shooter.getVelocity(DEGREES));
         telemetry.addData("[UltimateGoalHardware] Shooter RPM", "%.1f",  rpm);
+        telemetry.addData("[UltimateGoalHardware] PIDF", "%.1f %.1f %.1f %.1f",  P, I, D, F);
+        shooter.setVelocityPIDFCoefficients(P, I, D, F);
     }
 
     public void setShooterEnabled(boolean enabled) {

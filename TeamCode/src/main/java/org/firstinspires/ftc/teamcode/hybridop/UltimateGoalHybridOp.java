@@ -69,7 +69,7 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
                 collector.setPower(0);
             }
 
-            if (gamepad1.b && this.canShoot()) {
+            if ((gamepad1.b || gamepad2.b) && this.canShoot()) {
                 escalator.setPower(1);
             } else {
                 escalator.setPower(0);
@@ -80,7 +80,15 @@ public abstract class UltimateGoalHybridOp extends UltimateGoalHardware implemen
                 gamepadActions.setToggleStateFor(false, GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.a);
             }
 
-            this.setShooterEnabled(gamepadActions.isToggled(GamepadActions.GamepadType.ONE, GamepadActions.GamepadButtons.y));
+            if (gamepadActions.isFirstPress(GamepadActions.GamepadType.TWO, GamepadActions.GamepadButtons.dpad_up)) {
+                P += 10;
+            } else if (gamepadActions.isFirstPress(GamepadActions.GamepadType.TWO, GamepadActions.GamepadButtons.dpad_down)) {
+                P -= 10;
+            }
+
+
+
+            this.setShooterEnabled(gamepadActions.isToggled(GamepadActions.GamepadType.TWO, GamepadActions.GamepadButtons.y));
         }
 
 
