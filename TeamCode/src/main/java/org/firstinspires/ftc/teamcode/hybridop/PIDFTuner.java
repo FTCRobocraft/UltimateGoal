@@ -44,6 +44,7 @@ public class PIDFTuner extends UltimateGoalHardware implements HybridOp {
                     P += INCREMENT;
                     break;
                 case I:
+                    I += INCREMENT;
                     break;
                 case D:
                     D += INCREMENT;
