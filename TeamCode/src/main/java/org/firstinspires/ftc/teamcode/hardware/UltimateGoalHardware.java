@@ -40,7 +40,7 @@ public abstract class UltimateGoalHardware extends RobotHardware {
             0.275,
             0.25);
 
-    boolean spinShooter = false;
+    public boolean spinShooter = false;
     public boolean extendWobbleGoal = false;
     double currentShooterPower = 0;
     double currentShooterRPM = 0;
@@ -148,10 +148,11 @@ public abstract class UltimateGoalHardware extends RobotHardware {
         int countsFromTarget = Math.abs(wobbleGoalHolder.getTargetPosition() - wobbleGoalHolder.getCurrentPosition());
         wobbleGoalHolder.setPower(countsFromTarget <= WOBBLE_GOAL_POWER_ZERO_THRESHOLD ? 0 : 1);
 
-        shooter.setVelocity(spinShooter ? rpmToCPS(SHOOTER_RPM) : 0);
+        // TEMPORARY FOR TUNING
+        // shooter.setVelocity(spinShooter ? rpmToCPS(SHOOTER_RPM) : 0);
         double rpm = cpsToRPM(shooter.getVelocity());
         telemetry.addData("[UltimateGoalHardware] Shooter Power", "%.1f", currentShooterPower);
-        telemetry.addData("[UltimateGoalHardware] Shooter DPS", "%.1f", shooter.getVelocity(DEGREES));
+        telemetry.addData("[UltimateGoalHardware] Shooter TPS", "%.1f", shooter.getVelocity());
         telemetry.addData("[UltimateGoalHardware] Shooter RPM", "%.1f",  rpm);
         telemetry.addData("[UltimateGoalHardware] PIDF", "%.1f %.1f %.1f %.1f",  P, I, D, F);
         shooter.setVelocityPIDFCoefficients(P, I, D, F);

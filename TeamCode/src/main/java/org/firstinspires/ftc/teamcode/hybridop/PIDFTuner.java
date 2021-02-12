@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.hybridop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.hardware.UltimateGoalHardware;
 import org.firstinspires.ftc.teamcode.playmaker.GamepadActions;
@@ -64,6 +65,23 @@ public class PIDFTuner extends UltimateGoalHardware implements HybridOp {
             }
         }
 
+        if (gamepadActions.isToggled(GamepadType.ONE, GamepadButtons.start)) {
+            shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        } else {
+            shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        if (shooter.getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER) {
+            if (gamepadActions.isToggled(GamepadType.ONE, GamepadButtons.back)) {
+                shooter.setPower(1);
+            } else {
+                shooter.setPower(0);
+            }
+        } else {
+            this.shooter.setVelocity(this.spinShooter ? UltimateGoalHardware.SHOOTER_RPM : 0);
+        }
+
+        telemetry.addData("[PIDFTuner] Current Run Mode", shooter.getMode());
         telemetry.addData("[PIDFTuner] Current Modifier", currentModifier.toString());
     }
 
