@@ -20,6 +20,7 @@ public class PIDFTuner extends UltimateGoalHardware implements HybridOp {
 
     PIDFModifier currentModifier;
     final double INCREMENT = 10;
+    double maxTps = 0;
 
     @Override
     public void autonomous_loop() {
@@ -81,8 +82,14 @@ public class PIDFTuner extends UltimateGoalHardware implements HybridOp {
             this.shooter.setVelocity(this.spinShooter ? UltimateGoalHardware.SHOOTER_RPM : 0);
         }
 
+        double tps = shooter.getVelocity();
+        if (tps > maxTps) {
+            maxTps = tps;
+        }
+
         telemetry.addData("[PIDFTuner] Current Run Mode", shooter.getMode());
         telemetry.addData("[PIDFTuner] Current Modifier", currentModifier.toString());
+        telemetry.addData("[PIDFTuner] Max TPS", maxTps);
     }
 
     @Override
